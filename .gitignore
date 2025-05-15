@@ -1,0 +1,10 @@
+
+**/build/*
+**/lib/*
+**/CMakeFiles/*
+
+**/OLD/*
+**/experimentation/*
+**/notes/*
+
+**.vscode
