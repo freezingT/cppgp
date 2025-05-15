@@ -1,0 +1,19 @@
+
+macro(create_test TARGETNAME FILELIST)
+
+    if(BUILD_TESTING)
+        enable_testing()
+        add_executable(${TARGETNAME}
+            ${FILELIST}
+        )
+        target_link_libraries(
+            ${TARGETNAME}
+            GTest::gtest_main
+            libgp
+        )
+
+        include(GoogleTest)
+        gtest_discover_tests(${TARGETNAME})
+    endif()
+
+endmacro()

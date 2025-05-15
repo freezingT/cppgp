@@ -1,0 +1,81 @@
+\hypertarget{classGP_1_1GPApproximation}{}\doxysection{GP\+::GPApproximation Class Reference}
+\label{classGP_1_1GPApproximation}\index{GP::GPApproximation@{GP::GPApproximation}}
+
+
+Inheritance diagram for GP\+::GPApproximation\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=201pt]{classGP_1_1GPApproximation__inherit__graph}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classGP_1_1GPApproximation_a7fdfdf4cb279370ba6634914c7b74782}\label{classGP_1_1GPApproximation_a7fdfdf4cb279370ba6634914c7b74782}} 
+virtual void {\bfseries get\+Parameters} (Eigen\+::\+Vector\+Xd \&params) const =0
+\item 
+\mbox{\Hypertarget{classGP_1_1GPApproximation_a96b248d745f079ab6e66f02f27d972c0}\label{classGP_1_1GPApproximation_a96b248d745f079ab6e66f02f27d972c0}} 
+virtual void {\bfseries set\+Parameters} (const Eigen\+::\+Vector\+Xd \&params)=0
+\item 
+\mbox{\Hypertarget{classGP_1_1GPApproximation_a3111c39ba959f56ef5b917ee390af87c}\label{classGP_1_1GPApproximation_a3111c39ba959f56ef5b917ee390af87c}} 
+virtual size\+\_\+t {\bfseries n\+Parameters} () const =0
+\item 
+\mbox{\Hypertarget{classGP_1_1GPApproximation_ad3710c915d8ffe505c5c14e4f38c4f6a}\label{classGP_1_1GPApproximation_ad3710c915d8ffe505c5c14e4f38c4f6a}} 
+void {\bfseries update\+Kernel\+Precomputations} (const std\+::shared\+\_\+ptr$<$ GPKernel $>$ \&kernel, const Eigen\+::\+Matrix\+Xd \&obsX, const Eigen\+::\+Matrix\+Xd \&obs\+Ynormalized)
+\item 
+\mbox{\Hypertarget{classGP_1_1GPApproximation_a98aacce4112a9e7b0b39ac45110a84c3}\label{classGP_1_1GPApproximation_a98aacce4112a9e7b0b39ac45110a84c3}} 
+void {\bfseries Kinv\+Scalar\+Product} (Eigen\+::\+Vector\+Xd \&XTKinvX, const Eigen\+::\+Matrix\+Xd \&Xin) const
+\item 
+\mbox{\Hypertarget{classGP_1_1GPApproximation_afcb2e56b1fc84ed740f44243ebf457ea}\label{classGP_1_1GPApproximation_afcb2e56b1fc84ed740f44243ebf457ea}} 
+void {\bfseries alpha\+Product} (Eigen\+::\+Matrix\+Xd \&prod, const Eigen\+::\+Matrix\+Xd \&lfactor) const
+\item 
+\mbox{\Hypertarget{classGP_1_1GPApproximation_a085df817de71d03c3e55de7f5279d2ec}\label{classGP_1_1GPApproximation_a085df817de71d03c3e55de7f5279d2ec}} 
+virtual double {\bfseries compute\+Negative\+Log\+Marginal\+Likelihood} (const Eigen\+::\+Matrix\+Xd \&obs\+Ynormalized)=0
+\item 
+\mbox{\Hypertarget{classGP_1_1GPApproximation_a730860c2346a15c78c25e260997db440}\label{classGP_1_1GPApproximation_a730860c2346a15c78c25e260997db440}} 
+bool {\bfseries set\+Noise} (const double noise)
+\item 
+\mbox{\Hypertarget{classGP_1_1GPApproximation_a6c5a288be854fff1c74dfc9e750e4492}\label{classGP_1_1GPApproximation_a6c5a288be854fff1c74dfc9e750e4492}} 
+double {\bfseries get\+Noise} () const
+\item 
+\mbox{\Hypertarget{classGP_1_1GPApproximation_aaef82d17d5e64e70520c24b27ec0d154}\label{classGP_1_1GPApproximation_aaef82d17d5e64e70520c24b27ec0d154}} 
+void {\bfseries set\+Noise\+Fixed} (bool is\+Noise\+Fixed)
+\item 
+\mbox{\Hypertarget{classGP_1_1GPApproximation_a2907c6e076f6bfe3749becd3059a5fe0}\label{classGP_1_1GPApproximation_a2907c6e076f6bfe3749becd3059a5fe0}} 
+bool {\bfseries is\+Noise\+Fixed} () const
+\item 
+\mbox{\Hypertarget{classGP_1_1GPApproximation_a3a6f651dc87fa7072fa9fa3939489898}\label{classGP_1_1GPApproximation_a3a6f651dc87fa7072fa9fa3939489898}} 
+double {\bfseries get\+Log\+DetK} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classGP_1_1GPApproximation_ab47f3927dc35ac72e6416e20480923ba}\label{classGP_1_1GPApproximation_ab47f3927dc35ac72e6416e20480923ba}} 
+bool {\bfseries is\+Inverse\+KComputed} () const
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classGP_1_1GPApproximation_a273397b8c9da7fb90e97a5aa9286fd59}\label{classGP_1_1GPApproximation_a273397b8c9da7fb90e97a5aa9286fd59}} 
+Eigen\+::\+LLT$<$ Eigen\+::\+Matrix\+Xd $>$ {\bfseries llt}
+\item 
+\mbox{\Hypertarget{classGP_1_1GPApproximation_a37635a8158163e5187381c5f2caa5a1c}\label{classGP_1_1GPApproximation_a37635a8158163e5187381c5f2caa5a1c}} 
+Eigen\+::\+Matrix\+Xd {\bfseries K}
+\item 
+\mbox{\Hypertarget{classGP_1_1GPApproximation_a0c5b143b4752dfb0a303e0afba00ca34}\label{classGP_1_1GPApproximation_a0c5b143b4752dfb0a303e0afba00ca34}} 
+double {\bfseries log\+DetK}
+\item 
+\mbox{\Hypertarget{classGP_1_1GPApproximation_ad719ed36303fa14778dbb395b03a804a}\label{classGP_1_1GPApproximation_ad719ed36303fa14778dbb395b03a804a}} 
+Eigen\+::\+Vector\+Xd {\bfseries inner\+Products}
+\item 
+\mbox{\Hypertarget{classGP_1_1GPApproximation_a4d679e9875b39a8ada488e2bcfca2d37}\label{classGP_1_1GPApproximation_a4d679e9875b39a8ada488e2bcfca2d37}} 
+Eigen\+::\+Matrix\+Xd {\bfseries alpha}
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+libgp/gpapproximation.\+hpp\item 
+libgp/gpapproximation.\+cpp\end{DoxyCompactItemize}

@@ -1,0 +1,80 @@
+\hypertarget{classgp_1_1GaussianProcess}{}\doxysection{gp\+::Gaussian\+Process Class Reference}
+\label{classgp_1_1GaussianProcess}\index{gp::GaussianProcess@{gp::GaussianProcess}}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classgp_1_1GaussianProcess_aa7a238cc7adb3a2a352365cc60650760}\label{classgp_1_1GaussianProcess_aa7a238cc7adb3a2a352365cc60650760}} 
+{\bfseries Gaussian\+Process} (const \mbox{\hyperlink{classgp_1_1GaussianProcess}{Gaussian\+Process}} \&m)
+\item 
+\mbox{\Hypertarget{classgp_1_1GaussianProcess_a9f147f0212b1ebd9209a1af243bfb64e}\label{classgp_1_1GaussianProcess_a9f147f0212b1ebd9209a1af243bfb64e}} 
+{\bfseries Gaussian\+Process} (const Eigen\+::\+Matrix\+Xd \&X, const Eigen\+::\+Matrix\+Xd \&y)
+\item 
+\mbox{\Hypertarget{classgp_1_1GaussianProcess_a8f2250e8dc351c0e25c82d2c9bf3fec6}\label{classgp_1_1GaussianProcess_a8f2250e8dc351c0e25c82d2c9bf3fec6}} 
+{\bfseries Gaussian\+Process} (const GPKernel \&kernel, const Eigen\+::\+Matrix\+Xd \&X, const Eigen\+::\+Matrix\+Xd \&y)
+\item 
+\mbox{\Hypertarget{classgp_1_1GaussianProcess_a4a30b32e4b2814de3e60d73a990f7ce4}\label{classgp_1_1GaussianProcess_a4a30b32e4b2814de3e60d73a990f7ce4}} 
+{\bfseries Gaussian\+Process} (const GPKernel \&kernel)
+\item 
+\mbox{\Hypertarget{classgp_1_1GaussianProcess_a63a46181d4d4a58218fa6568dfe1e023}\label{classgp_1_1GaussianProcess_a63a46181d4d4a58218fa6568dfe1e023}} 
+virtual \mbox{\hyperlink{classgp_1_1GaussianProcess}{Gaussian\+Process}} $\ast$ {\bfseries copy} () const
+\item 
+\mbox{\Hypertarget{classgp_1_1GaussianProcess_a3d96d535672e4c06be7066f3171549cb}\label{classgp_1_1GaussianProcess_a3d96d535672e4c06be7066f3171549cb}} 
+void {\bfseries set\+Observation} (const Eigen\+::\+Matrix\+Xd \&X, const Eigen\+::\+Matrix\+Xd \&y)
+\item 
+\mbox{\Hypertarget{classgp_1_1GaussianProcess_afb6ca27237f4e84247ff90e5e022461b}\label{classgp_1_1GaussianProcess_afb6ca27237f4e84247ff90e5e022461b}} 
+void {\bfseries get\+Observation} (Eigen\+::\+Matrix\+Xd \&X, Eigen\+::\+Matrix\+Xd \&y) const
+\item 
+\mbox{\Hypertarget{classgp_1_1GaussianProcess_a5b97d20926667536bc9b7b2a2ef0e5da}\label{classgp_1_1GaussianProcess_a5b97d20926667536bc9b7b2a2ef0e5da}} 
+virtual void {\bfseries set\+Parameters} (const Eigen\+::\+Vector\+Xd \&params)
+\item 
+\mbox{\Hypertarget{classgp_1_1GaussianProcess_a990de3475fa0ebac11ab8a8e06c2d79f}\label{classgp_1_1GaussianProcess_a990de3475fa0ebac11ab8a8e06c2d79f}} 
+virtual void {\bfseries get\+Parameters} (Eigen\+::\+Vector\+Xd \&params) const
+\item 
+\mbox{\Hypertarget{classgp_1_1GaussianProcess_a1dee2ada99ba6ab5e688ba97c3c9ecca}\label{classgp_1_1GaussianProcess_a1dee2ada99ba6ab5e688ba97c3c9ecca}} 
+virtual size\+\_\+t {\bfseries n\+Parameters} () const
+\item 
+\mbox{\Hypertarget{classgp_1_1GaussianProcess_a56990e6a7cc4ad1559ec02884c93b394}\label{classgp_1_1GaussianProcess_a56990e6a7cc4ad1559ec02884c93b394}} 
+void {\bfseries set\+Kernel} (const GPKernel \&kernel)
+\item 
+\mbox{\Hypertarget{classgp_1_1GaussianProcess_a96618d0cb5c0944b4816c484e49e9f8c}\label{classgp_1_1GaussianProcess_a96618d0cb5c0944b4816c484e49e9f8c}} 
+const std\+::shared\+\_\+ptr$<$ const GPKernel $>$ {\bfseries get\+Kernel} ()
+\item 
+\mbox{\Hypertarget{classgp_1_1GaussianProcess_a5ce4532d68a8af541d93b78393620815}\label{classgp_1_1GaussianProcess_a5ce4532d68a8af541d93b78393620815}} 
+void {\bfseries posterior\+Mean\+Var} (Eigen\+::\+Matrix\+Xd \&mu, Eigen\+::\+Matrix\+Xd \&var\+Sigma, const Eigen\+::\+Matrix\+Xd \&Xin) const
+\item 
+\mbox{\Hypertarget{classgp_1_1GaussianProcess_a90bbbd3cbbeca4e8331bd91287656350}\label{classgp_1_1GaussianProcess_a90bbbd3cbbeca4e8331bd91287656350}} 
+void {\bfseries posterior\+Mean} (Eigen\+::\+Matrix\+Xd \&mu, const Eigen\+::\+Matrix\+Xd \&Xin) const
+\item 
+\mbox{\Hypertarget{classgp_1_1GaussianProcess_af61418878a046a159b5798ad9568dd58}\label{classgp_1_1GaussianProcess_af61418878a046a159b5798ad9568dd58}} 
+double {\bfseries compute\+Negative\+Log\+Marginal\+Likelihood} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classgp_1_1GaussianProcess_afac25eb74ca11849d08ff048433a6844}\label{classgp_1_1GaussianProcess_afac25eb74ca11849d08ff048433a6844}} 
+Eigen\+::\+Matrix\+Xd {\bfseries obsX}
+\item 
+\mbox{\Hypertarget{classgp_1_1GaussianProcess_a1a806f98b43b989017fffe431086c712}\label{classgp_1_1GaussianProcess_a1a806f98b43b989017fffe431086c712}} 
+Eigen\+::\+Matrix\+Xd {\bfseries obsY}
+\item 
+\mbox{\Hypertarget{classgp_1_1GaussianProcess_a064410024eabadd086a0cb90f7b77bfc}\label{classgp_1_1GaussianProcess_a064410024eabadd086a0cb90f7b77bfc}} 
+std\+::shared\+\_\+ptr$<$ GPKernel $>$ {\bfseries kernel}
+\item 
+\mbox{\Hypertarget{classgp_1_1GaussianProcess_ad28d5eaea820d0533dd2eeff843d640e}\label{classgp_1_1GaussianProcess_ad28d5eaea820d0533dd2eeff843d640e}} 
+std\+::shared\+\_\+ptr$<$ GPApproximation $>$ {\bfseries approx}
+\item 
+\mbox{\Hypertarget{classgp_1_1GaussianProcess_aef0220a78c6f8913129a7294a6a146be}\label{classgp_1_1GaussianProcess_aef0220a78c6f8913129a7294a6a146be}} 
+Eigen\+::\+Row\+Vector\+Xd {\bfseries bias}
+\item 
+\mbox{\Hypertarget{classgp_1_1GaussianProcess_a721192bfbb24db2fe7a65e4606db1ace}\label{classgp_1_1GaussianProcess_a721192bfbb24db2fe7a65e4606db1ace}} 
+Eigen\+::\+Row\+Vector\+Xd {\bfseries scale}
+\item 
+\mbox{\Hypertarget{classgp_1_1GaussianProcess_a46a590fdfcf44c52c0a74320e14032ae}\label{classgp_1_1GaussianProcess_a46a590fdfcf44c52c0a74320e14032ae}} 
+Eigen\+::\+Matrix\+Xd {\bfseries obs\+Ynormalized}
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+libgp/gaussianprocess.\+hpp\item 
+libgp/gaussianprocess.\+cpp\end{DoxyCompactItemize}
