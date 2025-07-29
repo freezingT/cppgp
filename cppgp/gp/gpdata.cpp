@@ -4,7 +4,10 @@
 
 
 gp::GPData::GPData(const unsigned int dimX, const unsigned int dimY) :
-    X(0, dimX), Y(0, dimY){}
+    X(0, dimX), Y(0, dimY)
+{
+    resetNormalization();
+}
 
 
 void gp::GPData::addData(const Eigen::VectorXd& X, const Eigen::VectorXd& Y){
@@ -23,6 +26,7 @@ void gp::GPData::addData(const Eigen::VectorXd& X, const Eigen::VectorXd& Y){
 
     this->X = newX;
     this->Y = newY;
+    updatedData_trigger();
 }
 
 
@@ -42,6 +46,7 @@ void gp::GPData::addData(const Eigen::MatrixXd& X, const Eigen::VectorXd& Y){
 
     this->X = newX;
     this->Y = newY;
+    updatedData_trigger();
 }
 
 
@@ -62,6 +67,7 @@ void gp::GPData::addData(const Eigen::VectorXd& X, const Eigen::MatrixXd& Y){
 
     this->X = newX;
     this->Y = newY;
+    updatedData_trigger();
 }
 
 
@@ -82,6 +88,7 @@ void gp::GPData::addData(const Eigen::MatrixXd& X, const Eigen::MatrixXd& Y){
 
     this->X = newX;
     this->Y = newY;
+    updatedData_trigger();
 }
 
 
@@ -127,6 +134,7 @@ void gp::GPData::addDatum(const Eigen::VectorXd& x, const Eigen::VectorXd& y){
 
     this->X = newX;
     this->Y = newY;
+    updatedData_trigger();
 }
 
 
@@ -160,4 +168,93 @@ std::tuple<const Eigen::MatrixXd&, const Eigen::MatrixXd&> gp::GPData::getData()
     const Eigen::MatrixXd& yptr = this->Y;
     auto data = std::tie(xptr, yptr);
     return data;
+}
+
+
+std::tuple<const Eigen::MatrixXd&, const Eigen::MatrixXd&> gp::GPData::getNormalizedData() const
+{
+    if(!computed_normalized[2]){
+        computeYNorm();
+    }
+    const Eigen::MatrixXd& xptr = this->X;
+    const Eigen::MatrixXd& yptr = this->obsYnormalized;
+    auto data = std::tie(xptr, yptr);
+    return data;
+}
+
+
+void gp::GPData::getX(Eigen::MatrixXd& X) const
+{
+    X = this->X;
+}
+
+void gp::GPData::getY(Eigen::MatrixXd& Y) const
+{
+    Y = this->Y;
+}
+
+
+void gp::GPData::getBias(Eigen::RowVectorXd& bias) const
+{
+    if(!this->computed_normalized[0]) {
+        computeBias();
+    }
+    bias = this->bias;
+}
+
+void gp::GPData::getScale(Eigen::RowVectorXd& scale) const
+{
+    if(!this->computed_normalized[1]) {
+        computeScale();
+    }
+    scale = this->scale;
+}
+
+void gp::GPData::getYNormalized(Eigen::MatrixXd& yNormalized) const
+{
+    if(!this->computed_normalized[2]) {
+        computeYNorm();
+    }
+    yNormalized = this->obsYnormalized;
+}
+
+
+void gp::GPData::updatedData_trigger()
+{
+    resetNormalization();
+    notifyAll();
+}
+
+void gp::GPData::computeBias() const
+{
+    this->bias = this->Y.colwise().mean();
+    computed_normalized[0] = true;
+}
+
+void gp::GPData::computeScale() const
+{
+    this->scale = Eigen::VectorXd::Ones(Y.cols());
+    computed_normalized[2] = true;
+}
+
+
+void gp::GPData::computeYNorm() const
+{
+    if(!this->computed_normalized[0])
+    {
+        computeBias();
+    }
+    if(!this->computed_normalized[1])
+    {
+        computeScale();
+    }
+    this->obsYnormalized = (Y - bias).array().rowwise()/scale.array();
+    computed_normalized[2] = true;
+}
+
+void gp::GPData::resetNormalization() const
+{
+    computed_normalized[0] = false;
+    computed_normalized[1] = false;
+    computed_normalized[2] = false;
 }

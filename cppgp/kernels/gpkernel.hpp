@@ -3,9 +3,14 @@
 #include <memory>
 #include <Eigen/Eigen>
 
+#include <cppgp/kernels/covfun.hpp>
+#include <cppgp/gp/gpdata.hpp>
+#include <cppgp/util/observer.hpp>
+#include <cppgp/util/prototype.hpp>
+
 namespace gp::kernel {
 
-class GPKernel{
+class GPKernel : public gp::util::IObserver, public gp::util::Prototype {
     /**
      * @brief Abstract kernel class.
      *
@@ -14,36 +19,53 @@ class GPKernel{
     /**
      * @brief Create new GPKernel object.
      */
-    GPKernel(){};
+    GPKernel(std::shared_ptr<gp::kernel::CovarianceFunction>& covfun);
 
     /**
      * @brief Create a new GPKernel object using the given parameters.
      * @param Parameters to initialize the GP kernel.
      */
-    GPKernel(const Eigen::VectorXd&){};
+    GPKernel(std::shared_ptr<gp::kernel::CovarianceFunction> covfun, const double noise);
 
     /**
      * @brief Copy constructor to create a new GPKernel object.
      * @param Existing GPKernel that is used to initialize the parameters.
      */
-    GPKernel(const GPKernel&){};
-    virtual ~GPKernel(){};
+    GPKernel(const GPKernel&);
+
+    virtual ~GPKernel();
 
     /**
      * @brief Create a deep copy of the GPKernel object.
-     * @param Existing GPKernel that is used to initialize the parameters.
+     * @return The deep copy.
      */
-    virtual std::shared_ptr<GPKernel> copy() const = 0;
+    virtual std::shared_ptr<gp::util::Prototype> copy() const override;
 
-    virtual void computeCov(Eigen::MatrixXd& K, const Eigen::MatrixXd& X) const = 0;
-    virtual void computeCrossCov(Eigen::MatrixXd& K, const Eigen::MatrixXd& X1, const Eigen::MatrixXd& X2) const = 0;
-    virtual void computeCovDiag(Eigen::VectorXd& K, const Eigen::MatrixXd& X) const = 0;
+    void registerData(const std::shared_ptr<gp::GPData> gpdata);
+
+    void computeCov(Eigen::MatrixXd& K) const;
+    void computeNoisedCov(Eigen::MatrixXd& K) const;
+    void computeCrossCov(Eigen::MatrixXd& K, const Eigen::MatrixXd& X2) const;
+    void computeCovDiag(Eigen::VectorXd& K) const;
+    void getAlpha(Eigen::VectorXd& alpha) const;
+    //void getNoisedInvCov(Eigen::MatrixXd& ICov) const;
+    void getNoisedInvCov(Eigen::MatrixXd& ICov, const Eigen::MatrixXd& B) const;
+    double computeNoisedLogDetCov() const;
 
     // Getter/Setter
-    virtual void setParameters(const Eigen::VectorXd&, const int=0){};
-    virtual void getParameters(Eigen::VectorXd& params) const {params = Eigen::VectorXd(0);};
-    virtual void getParameters(Eigen::VectorXd&, const int) const {};
-    virtual size_t nParameters() const {return 0;};
+    void setParameters(const Eigen::VectorXd& params, const unsigned int index=0);
+    void getParameters(Eigen::VectorXd& params, const unsigned int index=0) const;
+    unsigned int nParameters() const;
+
+private:
+    void precomputeAlpha();
+    void changedData_trigger();
+
+    std::shared_ptr<gp::kernel::CovarianceFunction> covfun;
+    std::shared_ptr<gp::GPData> data;
+    Eigen::VectorXd alpha;
+    Eigen::LDLT<Eigen::MatrixXd> noisedCovDecomp;
+    double noise;
 };
 
 } // namespace gp::kernel

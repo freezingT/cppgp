@@ -4,6 +4,7 @@
 
 using namespace gp;
 
+
 const Eigen::VectorXd nullvector = Eigen::VectorXd(0);
 const Eigen::MatrixXd nullmatrix = Eigen::MatrixXd(0, 0);
 
@@ -11,128 +12,248 @@ inline bool isNullmatrix(const Eigen::MatrixXd& M){
     return M.size() == 0;
 }
 
-GaussianProcess::GaussianProcess() : obsX(nullmatrix),obsY(nullmatrix) {
-    kernel = std::shared_ptr<kernel::GPKernel>(nullptr);
-}
+/**
+ * Implementation class of GaussianProcesses.
+ */
+struct GaussianProcess::GaussianProcess_Impl {
 
-GaussianProcess::GaussianProcess(const GaussianProcess & m) : GaussianProcess(){
 
-}
+    // store observation data
+    std::shared_ptr<GPData> obsData;
+    std::shared_ptr<kernel::GPKernel> kernel;
+    //std::shared_ptr<GPApproximation> approx;
 
-GaussianProcess::GaussianProcess(const Eigen::MatrixXd& X, const Eigen::MatrixXd& y) {
-    this->setObservation(X, y);
-}
+    //Eigen::LLT<Eigen::MatrixXd> llt;
+    //bool is_logDetK_computed;
+    //double logDetK;
 
-GaussianProcess::GaussianProcess(const kernel::GPKernel& kernel, const Eigen::MatrixXd& X, const Eigen::MatrixXd& y){
-    this->setObservation(X, y);
-    this->setKernel(kernel);
-}
+    /*
+    *************** Methods ***************
+    */
 
-GaussianProcess::GaussianProcess(const kernel::GPKernel& kernel) : GaussianProcess(){
-    this->setKernel(kernel);
-}
+    GaussianProcess_Impl(
+        const std::shared_ptr<GPData>& obsData,
+        const std::shared_ptr<kernel::GPKernel>& kernel
+        ) :
+        obsData(obsData), kernel(kernel)
+    {
+    }
 
-GaussianProcess::~GaussianProcess()
+    void dataChange_trigger()
+    {
+        kernel->registerData(obsData);
+    }
+
+
+    void rescaleMuInplace(Eigen::MatrixXd& mu) const
+    {
+        Eigen::RowVectorXd scale, bias;
+        obsData->getScale(scale);
+        obsData->getBias(bias);
+        mu = (mu.array().rowwise()*scale.array()).rowwise() + bias.array(); //TODO check dimensions
+    }
+
+
+    void rescaleMuSigmaInplace(Eigen::MatrixXd& mu, Eigen::MatrixXd& sigma) const
+    {
+        Eigen::RowVectorXd scale, bias;
+        obsData->getScale(scale);
+        obsData->getBias(bias);
+        mu = (mu.array().rowwise()*scale.array()).rowwise() + bias.array(); //TODO check dimensions
+        sigma = sigma.array().rowwise()*(scale.array()*scale.array());
+    }
+
+    /**
+     * Computations taken from former gpapproximation.
+
+
+    void computeLogDetK(){
+        if(!this->isInverseK){
+            this->computeInverse();
+        }
+        this->logDetK = 2*this->llt.matrixL().determinant();
+        this->is_logDetK_computed = true;
+    }
+
+    double getLogDetK() {
+        if(!is_logDetK_computed){
+            computeLogDetK();
+        }
+        return this->logDetK;
+    }
+
+    double computeNegativeLogMarginalLikelihood() {
+        const Eigen::MatrixXd& obsYnormalized = std::get<1>(obsData->getNormalizedData());
+        Eigen::VectorXd vectorprod;
+        this->KinvScalarProduct(vectorprod, obsYnormalized.transpose());
+        double nlml = -0.5*vectorprod.sum();
+        nlml -= 0.5*obsYnormalized.cols()*this->getLogDetK();
+        return -nlml;
+        }
+    */
+};
+
+
+GaussianProcess::GaussianProcess() :
+    _gp_impl(std::make_unique<GaussianProcess_Impl>(
+        std::shared_ptr<GPData>(nullptr),
+        std::shared_ptr<kernel::GPKernel>(nullptr)))
 {}
 
-void GaussianProcess::setObservation(const Eigen::MatrixXd& X, const Eigen::MatrixXd& y){
-    if(X.rows() != y.rows()){
-        util::exceptions::throwException<util::exceptions::InconsistentInputError>("The number of samples is not consistent.");
+
+GaussianProcess::GaussianProcess(const GaussianProcess & m) : GaussianProcess()
+{
+    //TODO
+}
+
+
+GaussianProcess::GaussianProcess(const std::shared_ptr<GPData>& data) :
+    _gp_impl(std::make_unique<GaussianProcess_Impl>(
+        data,
+        std::shared_ptr<kernel::GPKernel>(nullptr)))
+{}
+
+
+GaussianProcess::GaussianProcess(const std::shared_ptr<kernel::GPKernel>& kernel) :
+    _gp_impl(std::make_unique<GaussianProcess_Impl>(
+        std::shared_ptr<GPData>(nullptr),
+        kernel))
+{}
+
+
+GaussianProcess::GaussianProcess(const std::shared_ptr<kernel::CovarianceFunction>& covfun) :
+    _gp_impl(std::make_unique<GaussianProcess_Impl>(
+        std::shared_ptr<GPData>(nullptr),
+        std::make_shared<kernel::GPKernel>(covfun)))
+{}
+
+GaussianProcess::GaussianProcess(const std::shared_ptr<GPData>& data, const std::shared_ptr<kernel::GPKernel>& kernel) :
+    _gp_impl(std::make_unique<GaussianProcess_Impl>(
+        data,
+        kernel))
+{}
+
+
+GaussianProcess::GaussianProcess(const std::shared_ptr<GPData>& data, const std::shared_ptr<kernel::CovarianceFunction>& covfun) :
+    _gp_impl(std::make_unique<GaussianProcess_Impl>(
+        data,
+        std::make_shared<kernel::GPKernel>(covfun)))
+{}
+
+
+GaussianProcess::~GaussianProcess()
+{
+}
+
+
+std::shared_ptr<gp::util::Prototype> GaussianProcess::copy() const
+{
+    return std::make_shared<GaussianProcess>(*this);
+}
+
+
+void GaussianProcess::setObservation(const std::shared_ptr<GPData>& obsData){
+    auto old_data = this->_gp_impl->obsData;
+    this->_gp_impl->obsData = obsData;
+    //TODO: connect to event system to detect data changes
+    try {
+        this->_gp_impl->dataChange_trigger();
     }
-    this->obsX = X;
-    this->obsY = y;
-    this->computeNormalizedObservation();
-    this->updateKernelPrecomputations();
-}
-
-void GaussianProcess::getObservation(Eigen::MatrixXd& X, Eigen::MatrixXd& y) const {
-    X = this->obsX;
-    y = this->obsY;
+    catch(...){ //TODO: Replace with appropriate exceptions ...?
+        this->_gp_impl->obsData = old_data;
+    }
 }
 
 
-void GaussianProcess::setKernel(const kernel::GPKernel& kernel){
-    this->kernel = std::shared_ptr<kernel::GPKernel>(kernel.copy());
-    this->updateKernelPrecomputations();
+std::shared_ptr<GPData> GaussianProcess::getObservation() const {
+    return this->_gp_impl->obsData;
+}
+
+
+void GaussianProcess::setKernel(const std::shared_ptr<kernel::GPKernel>& kernel){
+    this->_gp_impl->kernel = kernel;
+    /**
+     * Copy or not?
+     * - Should the user be able to provide also a GPKernel or only CovFunctions and GPKernels
+     * are only internally used?
+     * - Event system for kernel to track changes?
+     */
+    _gp_impl->kernel->registerData(_gp_impl->obsData);
 }
 
 const std::shared_ptr<const kernel::GPKernel> GaussianProcess::getKernel(){
-    return this->kernel;
-}
-
-void GaussianProcess::computeNormalizedObservation() {
-    this->bias = this->obsY.colwise().mean();
-    this->scale = Eigen::VectorXd::Ones(this->obsY.cols());
-    this->obsYnormalized = (this->obsY - this->bias).array().rowwise()/this->scale.array();
+    return _gp_impl->kernel;
 }
 
 
 void GaussianProcess::setParameters(const Eigen::VectorXd& params) {
-    auto nk = this->kernel->nParameters();
-    auto na = this->approx->nParameters();
-    this->kernel->setParameters(params(Eigen::seq(0, nk)));
-    this->approx->setParameters(params(Eigen::seq(nk, na)));
-    this->updateKernelPrecomputations();
+    auto nk = _gp_impl->kernel->nParameters();
+    //auto na = _gp_impl->approx->nParameters();
+    _gp_impl->kernel->setParameters(params(Eigen::seq(0, nk)));
+    //_gp_impl->approx->setParameters(params(Eigen::seq(nk, na)));
 }
+
 
 size_t GaussianProcess::nParameters() const {
-    return this->approx->nParameters() + this->kernel->nParameters();
+    return this->_gp_impl->kernel->nParameters();
 }
+
 
 void GaussianProcess::getParameters(Eigen::VectorXd& params) const {
-    Eigen::VectorXd aparam;
+    size_t n = 0;
+    //Eigen::VectorXd aparam;
+    //_gp_impl->approx->getParameters(aparam);
+    // n += aparam.size();
     Eigen::VectorXd kparam;
-    this->approx->getParameters(aparam);
-    this->kernel->getParameters(kparam);
-    auto n = aparam.size() + kparam.size();
+    _gp_impl->kernel->getParameters(kparam);
+    n += kparam.size();
+
     params.resize(n);
-    params << kparam, aparam;
+    params << kparam;//, aparam;
 }
 
-void GaussianProcess::updateKernelPrecomputations(){
-    if(this->kernel != nullptr && !isNullmatrix(this->obsX)){
-        this->approx->updateKernelPrecomputations(this-> kernel, this->obsX, this->obsYnormalized);
-    }
-}
 
-void GaussianProcess::rescaleMuInplace(Eigen::MatrixXd& mu) const{
-    mu = (mu.array().rowwise()*this->scale.array()).rowwise()+this->bias.array();
-}
+void GaussianProcess::posteriorMeanVar(Eigen::MatrixXd& mu, Eigen::MatrixXd& varSigma, const Eigen::MatrixXd& Xin) const
+{
+    Eigen::MatrixXd obsY;
+    _gp_impl->obsData->getYNormalized(obsY);
 
-void GaussianProcess::rescaleMuSigmaInplace(Eigen::MatrixXd& mu, Eigen::MatrixXd& sigma) const{
-    mu = (mu.array().rowwise()*this->scale.array()).rowwise()+this->bias.array();
-    sigma = sigma.array().rowwise()*(this->scale.array()*this->scale.array());
-}
-
-void GaussianProcess::posteriorMeanVar(Eigen::MatrixXd& mu, Eigen::MatrixXd& varSigma, const Eigen::MatrixXd& Xin) const {
-    mu.resize(Xin.rows(), this->obsY.cols());
-    varSigma.resize(Xin.rows(), this->obsY.cols());
+    mu.resize(Xin.rows(), obsY.cols());
+    varSigma.resize(Xin.rows(), obsY.cols());
 
     Eigen::MatrixXd kXStar;
-    this->kernel->computeCrossCov(kXStar, this->obsX, Xin);
+    _gp_impl->kernel->computeCrossCov(kXStar, Xin);
     this->approx->alphaProduct(mu, kXStar.transpose());
 
     Eigen::VectorXd diagK;
-    this->kernel->computeCovDiag(diagK, Xin);
+    _gp_impl->kernel->computeCovDiag(diagK);
     Eigen::VectorXd varsig;
     this->approx->KinvScalarProduct(varsig, kXStar.transpose());
     varsig = diagK - varsig;
     varSigma = varsig.replicate(1, Xin.cols());
 
-    this->rescaleMuInplace(mu);
-    this->rescaleMuSigmaInplace(mu, varSigma);
+    _gp_impl->rescaleMuInplace(mu);
+    _gp_impl->rescaleMuSigmaInplace(mu, varSigma);
 }
 
-void GaussianProcess::posteriorMean(Eigen::MatrixXd& mu, const Eigen::MatrixXd& Xin) const {
-    mu.resize(Xin.rows(), this->obsY.cols());
+
+void GaussianProcess::posteriorMean(Eigen::MatrixXd& mu, const Eigen::MatrixXd& Xin) const
+{
+    Eigen::MatrixXd obsY;
+    _gp_impl->obsData->getYNormalized(obsY);
+
+    mu.resize(Xin.rows(), obsY.cols());
 
     Eigen::MatrixXd kXStar;
-    this->kernel->computeCrossCov(kXStar, this->obsX, Xin);
-    this->approx->alphaProduct(mu, kXStar.transpose());
+    _gp_impl->kernel->computeCrossCov(kXStar, Xin);
+    _gp_impl->approx->alphaProduct(mu, kXStar.transpose());
 
-    this->rescaleMuInplace(mu);
+    _gp_impl->rescaleMuInplace(mu);
 }
 
+
 double GaussianProcess::computeNegativeLogMarginalLikelihood() {
-    return this->approx->computeNegativeLogMarginalLikelihood(this->obsYnormalized);
+    Eigen::MatrixXd obsYNormalized;
+    _gp_impl->obsData->getYNormalized(obsYNormalized);
+    return 0.0; //TODO _gp_impl->computeNegativeLogMarginalLikelihood(obsYNormalized);
 }

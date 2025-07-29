@@ -6,10 +6,11 @@
 
 #include <Eigen/Eigen>
 
+#include <cppgp/util/observer.hpp>
 
 namespace gp {
 
-class GPData {
+class GPData : public gp::util::ISubject {
 public:
     GPData(const unsigned int dimX, const unsigned int dimY);
 
@@ -31,13 +32,41 @@ public:
     unsigned int getDimX() const;
     unsigned int getDimY() const;
 
-    // retrieve data
+    /**
+     * retrieve data
+     */
+
     //std::tuple<std::shared_ptr<const Eigen::MatrixXd>, std::shared_ptr<const Eigen::MatrixXd>> getData() const;
     std::tuple<const Eigen::MatrixXd&, const Eigen::MatrixXd&> getData() const;
+    std::tuple<const Eigen::MatrixXd&, const Eigen::MatrixXd&> getNormalizedData() const;
+    /**
+     * TODO what is the best way to return the data?
+     * As copy, reference or shared pointer?
+     * Currently, the tuple returns a reference and the getX/getY-methods create a copy.
+     */
+    void getX(Eigen::MatrixXd& X) const;
+    void getY(Eigen::MatrixXd& Y) const;
+
+    void getBias(Eigen::RowVectorXd& bias) const; //TODO implement!
+    void getScale(Eigen::RowVectorXd& scale) const;
+    void getYNormalized(Eigen::MatrixXd& yNormalized) const;
 
 private:
     Eigen::MatrixXd X;
     Eigen::MatrixXd Y;
+
+    void updatedData_trigger();
+
+    // Normalized data
+    mutable bool computed_normalized[3]; // flag for lazy computation ([bias, scale, yNorm])
+    mutable Eigen::RowVectorXd bias;  // [nY],  lazy computation!
+    mutable Eigen::RowVectorXd scale; // [nY],  lazy computation!
+    mutable Eigen::MatrixXd obsYnormalized; // [nData x nY],  lazy computation!
+
+    void computeBias() const;
+    void computeScale() const;
+    void computeYNorm() const;
+    void resetNormalization() const;
 };
 
 }

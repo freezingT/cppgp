@@ -4,56 +4,49 @@
 
 #include <Eigen/Eigen>
 
+#include <cppgp/util/prototype.hpp>
+#include <cppgp/gp/gpdata.hpp>
 #include <cppgp/kernels/gpkernel.hpp>
-#include <cppgp/gp/gpapproximation.hpp>
 
 namespace gp {
 
 
-class GaussianProcess {
+class GaussianProcess : public util::Prototype {
 public:
     GaussianProcess();
     GaussianProcess(const GaussianProcess & m);
-    GaussianProcess(const Eigen::MatrixXd& X, const Eigen::MatrixXd& y);
-    GaussianProcess(const kernel::GPKernel& kernel, const Eigen::MatrixXd& X, const Eigen::MatrixXd& y);
-    GaussianProcess(const kernel::GPKernel& kernel);
+    GaussianProcess(const std::shared_ptr<GPData>& data);
+    GaussianProcess(const std::shared_ptr<kernel::GPKernel>& kernel);
+    GaussianProcess(const std::shared_ptr<kernel::CovarianceFunction>& covfun);
+
+    GaussianProcess(const std::shared_ptr<GPData>& data, const std::shared_ptr<kernel::GPKernel>& kernel);
+    GaussianProcess(const std::shared_ptr<GPData>& data, const std::shared_ptr<kernel::CovarianceFunction>& covfun);
+
     virtual ~GaussianProcess();
-    virtual GaussianProcess* copy() const {return(new GaussianProcess(*this));};
+
+    virtual std::shared_ptr<util::Prototype> copy() const override;// {return(new GaussianProcess(*this));};
 
     // Getter/Setter
-    void setObservation(const Eigen::MatrixXd& X, const Eigen::MatrixXd& y);
-    void getObservation(Eigen::MatrixXd& X, Eigen::MatrixXd& y) const;
+    void setObservation(const std::shared_ptr<GPData>& obsData);
+    std::shared_ptr<GPData> getObservation() const;
+
+    void setKernel(const std::shared_ptr<kernel::GPKernel>& kernel);
+    const std::shared_ptr<const kernel::GPKernel> getKernel();
+
     virtual void setParameters(const Eigen::VectorXd& params);
     virtual void getParameters(Eigen::VectorXd& params) const;
     virtual size_t nParameters() const;
 
-    void setKernel(const kernel::GPKernel& kernel);
-    const std::shared_ptr<const kernel::GPKernel> getKernel();
 
     // evaluate and optimize
     void posteriorMeanVar(Eigen::MatrixXd& mu, Eigen::MatrixXd& varSigma, const Eigen::MatrixXd& Xin) const;
     void posteriorMean(Eigen::MatrixXd& mu, const Eigen::MatrixXd& Xin) const;
     double computeNegativeLogMarginalLikelihood();
 
-private:
-    void computeNormalizedObservation();
-    void updateKernelPrecomputations();
-
-    void rescaleMuInplace(Eigen::MatrixXd& mu) const;
-    void rescaleMuSigmaInplace(Eigen::MatrixXd& mu, Eigen::MatrixXd& sigma) const;
 protected:
+    class GaussianProcess_Impl;
+    std::unique_ptr<GaussianProcess_Impl> _gp_impl;
 
-    // store observation data
-    Eigen::MatrixXd obsX;  // [nData x nX]
-    Eigen::MatrixXd obsY;  // [nData x nY]
-
-    std::shared_ptr<kernel::GPKernel> kernel;
-    std::shared_ptr<GPApproximation> approx;
-
-    // normalize input observation
-    Eigen::RowVectorXd bias;  // [nY]
-    Eigen::RowVectorXd scale; // [nY]
-    Eigen::MatrixXd obsYnormalized; // [nData x nY]
 
 }; // class GaussianProcess
 
