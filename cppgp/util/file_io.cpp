@@ -23,6 +23,9 @@ void util::io::read_textfile(std::vector<std::vector<double>>& M, const std::str
     if(ifs){
         while(!ifs.eof()){
             std::getline(ifs, line);
+            if(line.size() == 0) {
+                break;
+            }
             std::vector<std::string> strvec;
             std::vector<double> dvec;
             util::string::tokenize(strvec, line);
@@ -65,3 +68,21 @@ std::string util::io::get_project_path(){
     }
     return pathname;
 }
+
+void util::io::load_matrix_from_textfile(Eigen::MatrixXd& M, const std::string& rel_path){
+        std::vector<std::vector<double>> V;
+        std::string path = util::io::get_project_path() + rel_path;
+        util::io::read_textfile(V, path);
+        size_t nrows = V.size();
+        if(nrows == 0){
+            M = Eigen::MatrixXd(0, 0);
+            return;
+        }
+        size_t ncols = V[0].size();
+        M = Eigen::MatrixXd(nrows, ncols);
+        for(size_t row = 0; row < nrows; ++row){
+            for(size_t col = 0; col < ncols; ++col){
+                M(row, col) = V[row][col];
+            }
+        }
+    }

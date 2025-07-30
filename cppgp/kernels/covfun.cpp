@@ -23,10 +23,10 @@ void gp::kernel::CovarianceFunction::K(Eigen::MatrixXd &K, const Eigen::MatrixXd
     this->covariancefunction(K, X1, X2);
 }
 
-//void gp::kernel::CovarianceFunction::diagK(Eigen::VectorXd &K, const Eigen::MatrixXd &X)
-//{
-//
-//}
+void gp::kernel::CovarianceFunction::diagK(Eigen::VectorXd &K, const Eigen::MatrixXd &X)
+{
+    this->covariancefunctionDiag(K, X);
+}
 
 void gp::kernel::CovarianceFunction::dK_dP()
 {

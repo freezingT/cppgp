@@ -10,7 +10,7 @@
 
 namespace gp::kernel {
 
-class GPKernel : public gp::util::IObserver, public gp::util::Prototype {
+class GPKernel : public util::IObserver, public util::Prototype {
     /**
      * @brief Abstract kernel class.
      *
@@ -19,13 +19,13 @@ class GPKernel : public gp::util::IObserver, public gp::util::Prototype {
     /**
      * @brief Create new GPKernel object.
      */
-    GPKernel(std::shared_ptr<gp::kernel::CovarianceFunction>& covfun);
+    GPKernel(const std::shared_ptr<gp::kernel::CovarianceFunction>& covfun);
 
     /**
      * @brief Create a new GPKernel object using the given parameters.
      * @param Parameters to initialize the GP kernel.
      */
-    GPKernel(std::shared_ptr<gp::kernel::CovarianceFunction> covfun, const double noise);
+    GPKernel(const std::shared_ptr<gp::kernel::CovarianceFunction> covfun, const double noise);
 
     /**
      * @brief Copy constructor to create a new GPKernel object.
@@ -39,7 +39,7 @@ class GPKernel : public gp::util::IObserver, public gp::util::Prototype {
      * @brief Create a deep copy of the GPKernel object.
      * @return The deep copy.
      */
-    virtual std::shared_ptr<gp::util::Prototype> copy() const override;
+    virtual std::shared_ptr<util::Prototype> copy() const override;
 
     void registerData(const std::shared_ptr<gp::GPData> gpdata);
 

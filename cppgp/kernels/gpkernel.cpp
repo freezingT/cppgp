@@ -1,11 +1,11 @@
 #include <cppgp/kernels/gpkernel.hpp>
-#include "gpkernel.hpp"
 
-gp::kernel::GPKernel::GPKernel(std::shared_ptr<gp::kernel::CovarianceFunction> &covfun):
+
+gp::kernel::GPKernel::GPKernel(const std::shared_ptr<gp::kernel::CovarianceFunction> &covfun):
     covfun(covfun), data(nullptr)
 {}
 
-gp::kernel::GPKernel::GPKernel(std::shared_ptr<gp::kernel::CovarianceFunction> covfun, const double noise):
+gp::kernel::GPKernel::GPKernel(const std::shared_ptr<gp::kernel::CovarianceFunction> covfun, const double noise):
     covfun(covfun), noise(noise)
 {}
 
@@ -16,7 +16,7 @@ gp::kernel::GPKernel::GPKernel(const GPKernel &gpkernel):
 gp::kernel::GPKernel::~GPKernel()
 {}
 
-std::shared_ptr<gp::util::Prototype> gp::kernel::GPKernel::copy() const
+std::shared_ptr<util::Prototype> gp::kernel::GPKernel::copy() const
 {
     return std::make_shared<gp::kernel::GPKernel>(*this);
 }

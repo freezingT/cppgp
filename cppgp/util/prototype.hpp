@@ -2,7 +2,7 @@
 
 #include <memory>
 
-namespace gp::util
+namespace util
 {
 
     class Prototype {
@@ -13,4 +13,4 @@ namespace gp::util
         virtual std::shared_ptr<Prototype> copy() const = 0;
     };
 
-} // namespace gp::util
+} // namespace util

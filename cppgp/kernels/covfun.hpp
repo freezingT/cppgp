@@ -15,7 +15,7 @@ public:
 
     void K(Eigen::MatrixXd& K, const Eigen::MatrixXd& X);
     void K(Eigen::MatrixXd& K, const Eigen::MatrixXd& X1, const Eigen::MatrixXd& X2);
-    //void diagK(Eigen::VectorXd& K, const Eigen::MatrixXd& X);
+    void diagK(Eigen::VectorXd& K, const Eigen::MatrixXd& X);
     void dK_dP();
     void dK_dX();
     void ddK_dXdX();
@@ -66,6 +66,7 @@ public:
 protected:
     virtual void covariancefunction(Eigen::MatrixXd& K, const Eigen::MatrixXd& X1, const Eigen::MatrixXd& X2) const = 0;
     virtual void covariancefunction(Eigen::MatrixXd& K, const Eigen::MatrixXd& X) const = 0;
+    virtual void covariancefunctionDiag(Eigen::VectorXd& K, const Eigen::MatrixXd& X) const = 0;
 
     Eigen::VectorXd parameters;
 };

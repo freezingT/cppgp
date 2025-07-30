@@ -4,17 +4,17 @@
 
 int status1, status2;
 
-class ObsClass1 : public gp::util::IObserver {
+class ObsClass1 : public util::IObserver {
 public:
     void getNotified(){status1++;};
 };
 
-class ObsClass2 : public gp::util::IObserver {
+class ObsClass2 : public util::IObserver {
 public:
     void getNotified(){status2++;};
 };
 
-class Client : public gp::util::ISubject {
+class Client : public util::ISubject {
 public:
     void doNotify() {this->notifyAll();}
 };

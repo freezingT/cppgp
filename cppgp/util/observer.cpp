@@ -5,7 +5,7 @@
 #include <list>
 #include <random>
 
-using namespace gp::util;
+using namespace util;
 
 struct ISubject::impl {
     std::map<unsigned long, std::function<void()>> observer_list;

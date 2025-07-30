@@ -1,6 +1,7 @@
 #include <cppgp/util/exceptions.hpp>
 #include <gtest/gtest.h>
 
+
 TEST(exceptions, test_Error){
     try{
         throw util::exceptions::Error("My Message");

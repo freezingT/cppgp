@@ -3,7 +3,7 @@
 #include <memory>
 #include <functional>
 
-namespace gp::util {
+namespace util {
 
 /**
  * Interface to allow observation of a ISubject class.
@@ -60,4 +60,4 @@ private:
     std::unique_ptr<impl> pImpl;
 };
 
-} // namespace gp::util
+} // namespace util

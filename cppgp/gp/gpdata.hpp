@@ -10,7 +10,7 @@
 
 namespace gp {
 
-class GPData : public gp::util::ISubject {
+class GPData : public util::ISubject {
 public:
     GPData(const unsigned int dimX, const unsigned int dimY);
 

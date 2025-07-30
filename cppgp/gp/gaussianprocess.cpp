@@ -23,9 +23,18 @@ struct GaussianProcess::GaussianProcess_Impl {
     std::shared_ptr<kernel::GPKernel> kernel;
     //std::shared_ptr<GPApproximation> approx;
 
-    //Eigen::LLT<Eigen::MatrixXd> llt;
-    //bool is_logDetK_computed;
-    //double logDetK;
+    Eigen::LLT<Eigen::MatrixXd> llt;
+    Eigen::MatrixXd K;    // [nData x nData]
+    bool is_inverseK_computed; // true, if the inverse of K has been successfully computed, else false
+    double inverseNoise;
+    bool is_noise_fixed;
+
+    Eigen::MatrixXd alpha; // [nData x nY]
+    bool is_alpha_computed;
+
+    bool is_logDetK_computed;
+    double logDetK;
+
 
     /*
     *************** Methods ***************
@@ -42,6 +51,7 @@ struct GaussianProcess::GaussianProcess_Impl {
     void dataChange_trigger()
     {
         kernel->registerData(obsData);
+        updateKernelComputations();
     }
 
 
@@ -65,10 +75,58 @@ struct GaussianProcess::GaussianProcess_Impl {
 
     /**
      * Computations taken from former gpapproximation.
+     */
 
+    void updateKernelComputations()
+    {
+        this->kernel->computeCov(this->K);
+        this->computeInverse();
+        this->updateAlpha();
+        this->computeLogDetK();
+    }
+
+    void updateAlpha()
+    {
+        Eigen::MatrixXd obsYNormalized;
+        this->obsData->getYNormalized(obsYNormalized);
+        this->alpha = this->llt.solve(obsYNormalized.transpose()).transpose();// this->Kinv*obsYNormalized;
+    }
+
+    void alphaProduct(Eigen::MatrixXd& prod, const Eigen::MatrixXd& lfactor) const {
+        prod = lfactor*this->alpha;
+    }
+
+    void KinvScalarProduct(Eigen::VectorXd& XTKinvX, const Eigen::MatrixXd& X) const {
+        XTKinvX = (X.array()*(this->llt.solve(X).array())).colwise().sum();
+    }
+
+     void computeInverse() {
+        int maxTries = (is_noise_fixed) ? 1 : 20;
+
+        Eigen::VectorXd diag;
+        bool success = false;
+        for(int i = 0; i < maxTries; ++i){
+            auto K2 = this->K;
+            if(i > 0){
+                inverseNoise *= 10;
+            }
+            diag = inverseNoise * Eigen::VectorXd::Ones(this->K.rows());
+            K2 += diag.asDiagonal().toDenseMatrix();
+
+            this->llt.compute(K2);
+            if(llt.info() == Eigen::Success){
+                success = true;
+                break;
+            }
+        }
+        if(!success){
+            util::exceptions::throwException<util::exceptions::Error>("Failed to invert the kernel matrix.");
+        }
+        this->is_inverseK_computed = true;
+    }
 
     void computeLogDetK(){
-        if(!this->isInverseK){
+        if(!is_inverseK_computed){
             this->computeInverse();
         }
         this->logDetK = 2*this->llt.matrixL().determinant();
@@ -90,7 +148,7 @@ struct GaussianProcess::GaussianProcess_Impl {
         nlml -= 0.5*obsYnormalized.cols()*this->getLogDetK();
         return -nlml;
         }
-    */
+
 };
 
 
@@ -146,7 +204,7 @@ GaussianProcess::~GaussianProcess()
 }
 
 
-std::shared_ptr<gp::util::Prototype> GaussianProcess::copy() const
+std::shared_ptr<util::Prototype> GaussianProcess::copy() const
 {
     return std::make_shared<GaussianProcess>(*this);
 }
@@ -191,6 +249,7 @@ void GaussianProcess::setParameters(const Eigen::VectorXd& params) {
     //auto na = _gp_impl->approx->nParameters();
     _gp_impl->kernel->setParameters(params(Eigen::seq(0, nk)));
     //_gp_impl->approx->setParameters(params(Eigen::seq(nk, na)));
+    _gp_impl->updateKernelComputations();
 }
 
 
@@ -223,12 +282,12 @@ void GaussianProcess::posteriorMeanVar(Eigen::MatrixXd& mu, Eigen::MatrixXd& var
 
     Eigen::MatrixXd kXStar;
     _gp_impl->kernel->computeCrossCov(kXStar, Xin);
-    this->approx->alphaProduct(mu, kXStar.transpose());
+    _gp_impl->alphaProduct(mu, kXStar.transpose());
 
     Eigen::VectorXd diagK;
     _gp_impl->kernel->computeCovDiag(diagK);
     Eigen::VectorXd varsig;
-    this->approx->KinvScalarProduct(varsig, kXStar.transpose());
+    _gp_impl->KinvScalarProduct(varsig, kXStar.transpose());
     varsig = diagK - varsig;
     varSigma = varsig.replicate(1, Xin.cols());
 
@@ -246,7 +305,7 @@ void GaussianProcess::posteriorMean(Eigen::MatrixXd& mu, const Eigen::MatrixXd& 
 
     Eigen::MatrixXd kXStar;
     _gp_impl->kernel->computeCrossCov(kXStar, Xin);
-    _gp_impl->approx->alphaProduct(mu, kXStar.transpose());
+    _gp_impl->alphaProduct(mu, kXStar.transpose());
 
     _gp_impl->rescaleMuInplace(mu);
 }
