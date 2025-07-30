@@ -1,8 +1,6 @@
 
 #include <cppgp/gp/gpdata.hpp>
-
 #include <iostream>
-
 #include <gtest/gtest.h>
 
 using namespace gp;
@@ -98,4 +96,118 @@ TEST(add_gpdata_data, add_gpdata_1to1){
     expY4 << 2.0, 1.0, 1.5, 2.5, 3.5, 4.5, 5.5;
     EXPECT_EQ(expX4, std::get<0>(res3));
     EXPECT_EQ(expY4, std::get<1>(res3));
+}
+
+TEST(get_gpdata, get_gpdata){
+    GPData gpdat(2, 3);
+    Eigen::VectorXd x1(2), y1(3);
+    x1 << 0.0, 0.0;
+    y1 << 0.0, 1.0, 0.5;
+    gpdat.addDatum(x1, y1);
+
+    Eigen::MatrixXd x2(5,2), y2(5,3);
+    x2 << 1.5, 2.5,
+        0.5, 2.5,
+        0.5, 3.5,
+        1.5, 0.5,
+        1.5, 1.5;
+    y2 << -1.5, 2.5, 2.5,
+        0.5, -2.5, 0.5,
+        0.5, 3.5, 1.5,
+        -1.5, 0.5, 3.5,
+        1.5, 1.5, 2.5;
+    gpdat.addData(x2, y2);
+
+    Eigen::MatrixXd xconcat(1+x2.rows(), x2.cols());
+    Eigen::MatrixXd yconcat(1+x2.rows(), y2.cols());
+    Eigen::MatrixXd mx1 = Eigen::Map<Eigen::Matrix<double, 1, 2>>(x1.data());
+    Eigen::MatrixXd my1 = Eigen::Map<Eigen::Matrix<double, 1, 3>>(y1.data());
+    xconcat << mx1, x2;
+    yconcat << my1, y2;
+
+    Eigen::MatrixXd xret, yret;
+    gpdat.getX(xret);
+    gpdat.getY(yret);
+    auto ret = gpdat.getData();
+
+    EXPECT_EQ(xret, xconcat);
+    EXPECT_EQ(yret, yconcat);
+    EXPECT_EQ(std::get<0>(ret), xconcat);
+    EXPECT_EQ(std::get<1>(ret), yconcat);
+}
+
+TEST(normalize_get_gpdata, get_gpdata_bias){
+    GPData gpdat(2, 3);
+
+    Eigen::MatrixXd x2(5,2), y2(5,3);
+    x2 << 1.5, 2.5,
+        0.5, 2.5,
+        0.5, 3.5,
+        1.5, 0.5,
+        1.5, 1.5;
+    y2 << -1.5, 2.5, 2.5,
+        0.5, -2.5, 0.5,
+        0.5, 3.5, 1.5,
+        -1.5, 0.5, 3.5,
+        1.5, 1.5, 2.5;
+    gpdat.addData(x2, y2);
+
+    Eigen::RowVectorXd bias, biasTrue(3);
+    biasTrue << -0.1, 1.1, 2.1;
+    gpdat.getBias(bias);
+
+
+    EXPECT_EQ(bias, biasTrue);
+}
+
+TEST(normalize_get_gpdata, get_gpdata_scale){
+    GPData gpdat(2, 3);
+
+    Eigen::MatrixXd x2(5,2), y2(5,3);
+    x2 << 1.5, 2.5,
+        0.5, 2.5,
+        0.5, 3.5,
+        1.5, 0.5,
+        1.5, 1.5;
+    y2 << -1.5, 2.5, 2.5,
+        0.5, -2.5, 0.5,
+        0.5, 3.5, 1.5,
+        -1.5, 0.5, 3.5,
+        1.5, 1.5, 2.5;
+    gpdat.addData(x2, y2);
+
+    Eigen::RowVectorXd scale, scaleTrue;
+    scaleTrue = Eigen::RowVectorXd::Ones(3);
+    gpdat.getScale(scale);
+
+
+    EXPECT_EQ(scale, scaleTrue);
+}
+
+TEST(normalize_get_gpdata, get_gpdata_ynormal){
+    GPData gpdat(2, 3);
+    Eigen::MatrixXd x2(5,2), y2(5,3);
+    x2 << 1.5, 2.5,
+        0.5, 2.5,
+        0.5, 3.5,
+        1.5, 0.5,
+        1.5, 1.5;
+    y2 << -1.5, 2.5, 2.5,
+        0.5, -2.5, 0.5,
+        0.5, 3.5, 1.5,
+        -1.5, 0.5, 3.5,
+        1.5, 1.5, 2.5;
+    gpdat.addData(x2, y2);
+
+    Eigen::MatrixXd yNorm;
+    Eigen::MatrixXd yNormTrue(5,3);
+    yNormTrue
+          << -1.4,  1.4,  0.4,
+              0.6, -3.6, -1.6,
+              0.6,  2.4, -0.6,
+             -1.4, -0.6,  1.4,
+              1.6,  0.4,  0.4;
+    gpdat.getYNormalized(yNorm);
+
+    EXPECT_TRUE(yNorm.isApprox(yNormTrue));
 }
