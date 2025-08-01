@@ -6,7 +6,7 @@ project(cppproject VERSION 2024.09
 
 
 option(LIBONLY "Activate to build library only" OFF)
-
+set(CMAKE_CXX_STANDARD 17)
 
 include(cmake_macros.txt)
 
@@ -46,18 +46,26 @@ set(FETCHCONTENT_UPDATES_DISCONNECTED OFF)
 ##############################
 # -- Eigen
 ##############################
-FetchContent_Declare(
-  Eigen
-  GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
-  GIT_TAG 3.4.0
-  GIT_SHALLOW TRUE
-  GIT_PROGRESS TRUE
-  )
-set(EIGEN_BUILD_TESTING OFF)
-set(EIGEN_MPL2_ONLY ON)
-set(EIGEN_BUILD_PKGCONFIG OFF)
-set(EIGEN_BUILD_DOC ON)
-FetchContent_MakeAvailable(Eigen)
+#FetchContent_Declare(
+#  Eigen
+#  GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
+#  GIT_TAG 3.4.0
+#  GIT_SHALLOW TRUE
+#  GIT_PROGRESS TRUE
+#  )
+#set(EIGEN_BUILD_TESTING OFF)
+#set(EIGEN_MPL2_ONLY ON)
+#set(EIGEN_BUILD_PKGCONFIG OFF)
+#set(EIGEN_BUILD_DOC ON)
+#FetchContent_MakeAvailable(Eigen)
+
+
+# -- Eigen
+#set(EIGEN_DIR "${DIR_EXTERNAL}/eigen-3.4.0")
+
+find_package(Eigen3 3.4 REQUIRED)
+link_directories(${Eigen_INCLUDE_DIRS})
+include_directories(${EIGEN_DIR})
 
 
 ##############################
@@ -76,23 +84,21 @@ FetchContent_MakeAvailable(googletest)
 ##############################
 # -- autodiff
 ##############################
-FetchContent_Declare(
-  autodiff
-  GIT_REPOSITORY  https://github.com/krippner/auto-diff.git
-  GIT_TAG         v0.4.0
-  GIT_SHALLOW TRUE
-  GIT_PROGRESS TRUE
-)
-set(AUTODIFF_BUILD_TESTS OFF CACHE BOOL "Build autodiff tests")
-set(AUTODIFF_BUILD_EXAMPLES OFF CACHE BOOL "Build autodiff examples")
-set(AUTODIFF_BUILD_PYTHON OFF CACHE BOOL "Build autodiff Python bindings")
-set(AUTODIFF_BUILD_DOCS ON CACHE BOOL "Build autodiff documentation")
-FetchContent_MakeAvailable(autodiff)
+#FetchContent_Declare(
+#  autodiff
+#  GIT_REPOSITORY  https://github.com/krippner/auto-diff.git
+#  GIT_TAG         v0.4.0
+#  GIT_SHALLOW TRUE
+#  GIT_PROGRESS TRUE
+#)
+#set(AUTODIFF_BUILD_TESTS OFF CACHE BOOL "Build autodiff tests")
+#set(AUTODIFF_BUILD_EXAMPLES OFF CACHE BOOL "Build autodiff examples")
+#set(AUTODIFF_BUILD_PYTHON OFF CACHE BOOL "Build autodiff Python bindings")
+#set(AUTODIFF_BUILD_DOCS ON CACHE BOOL "Build autodiff documentation")
+#FetchContent_MakeAvailable(autodiff)
 
-# -- Eigen
-#set(EIGEN_DIR "${DIR_EXTERNAL}/eigen-3.4.0")
-#include_directories(${EIGEN_DIR})
-#
+include_directories(${DIR_PROJECT}/extern/autodiff)
+
 #find_package( Boost 1.46.0 COMPONENTS serialization filesystem REQUIRED)
 #include_directories(${Boost_INCLUDE_DIR})
 

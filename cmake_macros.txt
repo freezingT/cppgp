@@ -8,7 +8,9 @@ macro(create_test TARGETNAME FILELIST)
         )
         target_link_libraries(
             ${TARGETNAME}
+            Eigen3::Eigen
             GTest::gtest_main
+            GTest::gmock_main
             libgp
         )
 
