@@ -13,3 +13,5 @@ target_sources(libgp PRIVATE
     #rbfkernel.cpp
     ${COVARIANCE_FUNCTIONS}
 )
+
+create_test(test_gpkernel gpkernel.test.cpp)

@@ -26,17 +26,17 @@
 
 
 gp::kernel::GPKernel::GPKernel(const std::shared_ptr<gp::kernel::CovarianceFunction> &covfun):
-    covfun(covfun), data(nullptr)
+    covfun(covfun), data(nullptr), is_alpha_computed(false)
 {}
 
 
 gp::kernel::GPKernel::GPKernel(const std::shared_ptr<gp::kernel::CovarianceFunction> covfun, const double noise):
-    covfun(covfun), noise(noise)
+    covfun(covfun), noise(noise), is_alpha_computed(false)
 {}
 
 
 gp::kernel::GPKernel::GPKernel(const GPKernel &gpkernel):
-    covfun(gpkernel.covfun->copy()), data(gpkernel.data) //copy ref to data without copy
+    covfun(gpkernel.covfun->copy()), data(gpkernel.data), is_alpha_computed(false)
 {}
 
 
@@ -56,12 +56,22 @@ void gp::kernel::GPKernel::registerData(const std::shared_ptr<gp::GPData> gpdata
         this->data->unsubscribe(this);
     }
     this->data = gpdata;
-    this->data->subscribe(this, std::bind(&gp::kernel::GPKernel::changedData_trigger, this));
+    if(gpdata != nullptr){
+        this->data->subscribe(this, std::bind(&gp::kernel::GPKernel::changedData_trigger, this));
+        changedData_trigger();
+    }
+    else {
+        is_alpha_computed = false;
+    }
 }
 
 
 void gp::kernel::GPKernel::computeCov(Eigen::MatrixXd& K) const
 {
+    if(this->data == nullptr){
+        K = Eigen::MatrixXd(0, 0);
+        return;
+    }
     Eigen::MatrixXd X;
     data->getX(X);
     covfun->K(K, X);
@@ -70,16 +80,24 @@ void gp::kernel::GPKernel::computeCov(Eigen::MatrixXd& K) const
 
 void gp::kernel::GPKernel::computeNoisedCov(Eigen::MatrixXd &K) const
 {
+    if(this->data == nullptr){
+        K = Eigen::MatrixXd(0, 0);
+        return;
+    }
     Eigen::MatrixXd X;
     data->getX(X);
     int n = X.rows();
     covfun->K(K, X);
-    K = K + this->noise*Eigen::MatrixXd(n, n);
+    K = K + this->noise*Eigen::MatrixXd::Identity(n, n);
 }
 
 
 void gp::kernel::GPKernel::computeCrossCov(Eigen::MatrixXd& K, const Eigen::MatrixXd& X2) const
 {
+    if(this->data == nullptr){
+        K = Eigen::MatrixXd(0, 0);
+        return;
+    }
     Eigen::MatrixXd X1;
     data->getX(X1);
     covfun->K(K, X1, X2);
@@ -88,15 +106,39 @@ void gp::kernel::GPKernel::computeCrossCov(Eigen::MatrixXd& K, const Eigen::Matr
 
 void gp::kernel::GPKernel::computeCovDiag(Eigen::VectorXd& K) const
 {
+    if(this->data == nullptr){
+        K = Eigen::VectorXd(0);
+        return;
+    }
     Eigen::MatrixXd X;
     data->getX(X);
     this->covfun->diagK(K, X);
 }
 
 
-void gp::kernel::GPKernel::getAlpha(Eigen::VectorXd& alpha) const
+void gp::kernel::GPKernel::getAlpha(Eigen::MatrixXd& alpha) const
 {
+    if(!is_alpha_computed){
+        precomputeAlpha();
+    }
     alpha = this->alpha;
+}
+
+
+void gp::kernel::GPKernel::setNoise(const double noise)
+{
+    if(noise < 0){
+        this->noise =  -noise;
+    }
+    else {
+        this->noise =  noise;
+    }
+}
+
+
+double gp::kernel::GPKernel::getNoise() const
+{
+    return this->noise;
 }
 
 
@@ -110,12 +152,18 @@ void gp::kernel::GPKernel::getNoisedInvCov(Eigen::MatrixXd& ICov) const
 
 void gp::kernel::GPKernel::getNoisedInvCov(Eigen::MatrixXd& ICov, const Eigen::MatrixXd &B) const
 {
+    if(!is_alpha_computed){
+        precomputeAlpha();
+    }
     ICov = this->noisedCovDecomp.solve(B);
 }
 
 
 double gp::kernel::GPKernel::computeNoisedLogDetCov() const
 {
+    if(!is_alpha_computed){
+        precomputeAlpha();
+    }
     return this->noisedCovDecomp.vectorD().array().log().sum();
 }
 
@@ -146,24 +194,39 @@ std::shared_ptr<gp::GPData> gp::kernel::GPKernel::getData() const
     return this->data;
 }
 
+std::shared_ptr<gp::kernel::CovarianceFunction> gp::kernel::GPKernel::getCovarianceFunction() const
+{
+    return this->covfun;
+}
 
 int gp::kernel::GPKernel::getN() const
 {
+    if(this->data == nullptr){
+        return 0;
+    }
     return this->data->getN();
 }
 
 
-void gp::kernel::GPKernel::precomputeAlpha()
+void gp::kernel::GPKernel::precomputeAlpha() const
 {
+    if(this->data == nullptr){
+        return;
+    }
     auto data = this->data->getNormalizedData();
     Eigen::MatrixXd K;
     this->computeNoisedCov(K);
     noisedCovDecomp = K.ldlt();
-    alpha = noisedCovDecomp.solve(std::get<1>(data));
+    auto tmp = std::get<1>(data);
+    alpha = noisedCovDecomp.solve(tmp);
+    is_alpha_computed = true;
 }
 
 
 void gp::kernel::GPKernel::changedData_trigger()
 {
-    this->precomputeAlpha();
+    if(this->data != nullptr)
+    {
+        this->precomputeAlpha();
+    }
 }

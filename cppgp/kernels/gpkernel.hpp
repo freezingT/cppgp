@@ -60,6 +60,8 @@ class GPKernel : public util::IObserver, public util::Prototype {
 
     /**
      * Copy constructor to create a new GPKernel object.
+     * A deep copy of the internal covariance function is done,
+     * but only a shallow copy of the internal data.
      *
      * @param gpkernel GPKernel that is copied.
      */
@@ -69,6 +71,7 @@ class GPKernel : public util::IObserver, public util::Prototype {
 
     /**
      * Create a deep copy of the GPKernel object.
+     * An exception is the shared_pointer to the data: In this case only a shallow copy is created to avoid copying the data.
      *
      * @return The deep copy.
      */
@@ -140,9 +143,23 @@ class GPKernel : public util::IObserver, public util::Prototype {
      *
      * @param alpha Returns the (pre-)computed alpha value, size [getN()].
      */
-    void getAlpha(Eigen::VectorXd& alpha) const;
+    void getAlpha(Eigen::MatrixXd& alpha) const;
 
     //void getNoisedInvCov(Eigen::MatrixXd& ICov) const;
+
+    /**
+     * Set the kernel noise to the the absolute value of the given noise.
+     *
+     * @param noise The new noise value.
+     */
+    void setNoise(const double noise);
+
+    /**
+     * Get the current kernel noise
+     *
+     * @return The kernel noise.
+     */
+    double getNoise() const;
 
     /**
      * Compute the product of the inverse covariance matrix and a given matrix B.
@@ -206,6 +223,13 @@ class GPKernel : public util::IObserver, public util::Prototype {
     std::shared_ptr<GPData> getData() const;
 
     /**
+     * Get a pointer to the internal covariance function.
+     *
+     * @return The internal covariance function.
+     */
+    std::shared_ptr<kernel::CovarianceFunction> getCovarianceFunction() const;
+
+    /**
      * Get the number of data points in the registered GPData object.
      * This number determines the size of the covariane matrix.
      *
@@ -214,13 +238,14 @@ class GPKernel : public util::IObserver, public util::Prototype {
     int getN() const;
 
 private:
-    void precomputeAlpha();
+    void precomputeAlpha() const;
     void changedData_trigger();
 
     std::shared_ptr<gp::kernel::CovarianceFunction> covfun;
     std::shared_ptr<gp::GPData> data;
-    Eigen::VectorXd alpha;
-    Eigen::LDLT<Eigen::MatrixXd> noisedCovDecomp;
+    mutable Eigen::MatrixXd alpha;
+    mutable Eigen::LDLT<Eigen::MatrixXd> noisedCovDecomp;
+    mutable bool is_alpha_computed;
     double noise;
 };
 
