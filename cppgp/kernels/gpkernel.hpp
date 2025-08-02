@@ -184,6 +184,7 @@ class GPKernel : public util::IObserver, public util::Prototype {
      */
     double computeNoisedLogDetCov() const;
 
+    void testing();
 
     /*
     ********* getter and setter *********

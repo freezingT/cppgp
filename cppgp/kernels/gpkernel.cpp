@@ -36,7 +36,9 @@ gp::kernel::GPKernel::GPKernel(const std::shared_ptr<gp::kernel::CovarianceFunct
 
 
 gp::kernel::GPKernel::GPKernel(const GPKernel &gpkernel):
-    covfun(gpkernel.covfun->copy()), data(gpkernel.data), is_alpha_computed(false)
+    covfun(std::dynamic_pointer_cast<CovarianceFunction>(gpkernel.covfun->copy())),
+    data(gpkernel.data),
+    is_alpha_computed(false)
 {}
 
 
@@ -115,6 +117,10 @@ void gp::kernel::GPKernel::computeCovDiag(Eigen::VectorXd& K) const
     this->covfun->diagK(K, X);
 }
 
+void gp::kernel::GPKernel::testing()
+{
+
+}
 
 void gp::kernel::GPKernel::getAlpha(Eigen::MatrixXd& alpha) const
 {
