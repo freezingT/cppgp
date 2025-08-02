@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 
 
-TEST(tokenize, tokenize_string){
+TEST(util_stringutil, tokenize_string){
     std::string s = "Tokenize a string in C++";
     std::vector<std::string> T;
 

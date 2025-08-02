@@ -20,7 +20,7 @@ public:
 };
 
 
-TEST(observer, observer_observation_id){
+TEST(util_observer, observer_observation_id){
     ObsClass1 o1, o2;
     ObsClass2 o3;
     EXPECT_NE(o1.getObserverID(), o2.getObserverID());
@@ -29,7 +29,7 @@ TEST(observer, observer_observation_id){
 }
 
 
-TEST(observer, observer_notify_subscribe){
+TEST(util_observer, observer_notify_subscribe){
     status1 = 0;
     status2 = 0;
 
@@ -52,7 +52,7 @@ TEST(observer, observer_notify_subscribe){
     ASSERT_EQ(status2, 0);
 }
 
-TEST(observer, observer_notify_subscribe2){
+TEST(util_observer, observer_notify_subscribe2){
     status1 = 0;
     status2 = 0;
 

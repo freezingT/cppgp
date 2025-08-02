@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 
 
-TEST(dist2_test, sometext){
+TEST(math_distance, dist2_test){
   // Expect two strings not to be equal.
   EXPECT_STRNE("hello", "world");
   // Expect equality.

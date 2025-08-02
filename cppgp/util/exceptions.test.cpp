@@ -2,7 +2,7 @@
 #include <gtest/gtest.h>
 
 
-TEST(exceptions, test_Error){
+TEST(util_exceptions, test_Error){
     try{
         throw util::exceptions::Error("My Message");
         FAIL();
@@ -20,7 +20,7 @@ TEST(exceptions, test_Error){
 }
 
 
-TEST(exceptions, test_InconsistentInputError){
+TEST(util_exceptions, test_InconsistentInputError){
     try{
         throw util::exceptions::InconsistentInputError("My Message");
         FAIL();
@@ -38,7 +38,7 @@ TEST(exceptions, test_InconsistentInputError){
 }
 
 
-TEST(exceptions, test_throwException){
+TEST(util_exceptions, test_throwException){
     try{
         util::exceptions::throwException<util::exceptions::InconsistentInputError>("Some error message");
         FAIL();

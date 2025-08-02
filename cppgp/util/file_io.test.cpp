@@ -6,7 +6,7 @@
 #include <fstream>
 
 
-TEST(read_series_data, Read_some_data_from_text_file){
+TEST(util_fileio, read_series_data){
 
     std::vector<std::vector<double>> M;
     std::string projpath = util::io::get_project_path();
@@ -24,7 +24,7 @@ TEST(read_series_data, Read_some_data_from_text_file){
     }
 }
 
-TEST(read_matrix, Read_matrix_from_textfile){
+TEST(util_fileio, read_matrix){
     Eigen::MatrixXd M;
     std::string rel_path = "/data/testing/matrix_01.txt";
     util::io::load_matrix_from_textfile(M, rel_path);

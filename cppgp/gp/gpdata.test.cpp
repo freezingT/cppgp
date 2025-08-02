@@ -5,7 +5,7 @@
 
 using namespace gp;
 
-TEST(create_gpdata, create_gpdata_dimensions){
+TEST(gp_gpdata, create_gpdata_dimensions){
     GPData gpdat1(1, 2);
     GPData gpdat2(3, 5);
 
@@ -16,7 +16,7 @@ TEST(create_gpdata, create_gpdata_dimensions){
     EXPECT_EQ(gpdat2.getDimY(), 5);
 }
 
-TEST(add_gpdata_getN, add_gpdata_getN_dim1){
+TEST(gp_gpdata, add_gpdata_getN_dim1){
     GPData gpdat(1, 1);
 
     gpdat.addDatum(1.0, 2.0);
@@ -32,7 +32,7 @@ TEST(add_gpdata_getN, add_gpdata_getN_dim1){
     EXPECT_EQ(gpdat.getN(), 7);
 }
 
-TEST(add_gpdata_getN, add_gpdata_getN_dimN){
+TEST(gp_gpdata, add_gpdata_getN_dimN){
     GPData gpdat(2, 3);
 
     Eigen::VectorXd x1(2), y1(3);
@@ -64,7 +64,7 @@ TEST(add_gpdata_getN, add_gpdata_getN_dimN){
 }
 
 
-TEST(add_gpdata_data, add_gpdata_1to1){
+TEST(gp_gpdata, add_gpdata_1to1){
     //Eigen::MatrixXd resX, resY;
     Eigen::Matrix<double, 1, 1> expX1, expY1;
     GPData gpdat(1, 1);
@@ -98,7 +98,7 @@ TEST(add_gpdata_data, add_gpdata_1to1){
     EXPECT_EQ(expY4, std::get<1>(res3));
 }
 
-TEST(get_gpdata, get_gpdata){
+TEST(gp_gpdata, get_gpdata){
     GPData gpdat(2, 3);
     Eigen::VectorXd x1(2), y1(3);
     x1 << 0.0, 0.0;
@@ -136,7 +136,7 @@ TEST(get_gpdata, get_gpdata){
     EXPECT_EQ(std::get<1>(ret), yconcat);
 }
 
-TEST(normalize_get_gpdata, get_gpdata_bias){
+TEST(gp_gpdata, get_gpdata_bias){
     GPData gpdat(2, 3);
 
     Eigen::MatrixXd x2(5,2), y2(5,3);
@@ -160,7 +160,7 @@ TEST(normalize_get_gpdata, get_gpdata_bias){
     EXPECT_EQ(bias, biasTrue);
 }
 
-TEST(normalize_get_gpdata, get_gpdata_scale){
+TEST(gp_gpdata, get_gpdata_scale){
     GPData gpdat(2, 3);
 
     Eigen::MatrixXd x2(5,2), y2(5,3);
@@ -184,7 +184,7 @@ TEST(normalize_get_gpdata, get_gpdata_scale){
     EXPECT_EQ(scale, scaleTrue);
 }
 
-TEST(normalize_get_gpdata, get_gpdata_ynormal){
+TEST(gp_gpdata, get_gpdata_ynormal){
     GPData gpdat(2, 3);
     Eigen::MatrixXd x2(5,2), y2(5,3);
     x2 << 1.5, 2.5,

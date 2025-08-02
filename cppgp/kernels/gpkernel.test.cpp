@@ -106,14 +106,14 @@ std::shared_ptr<GPData> get_test_data_2()
     return gpdata;
 }
 
-TEST(gpkernel, create_getCovFun_gpkernel_1){
+TEST(kernels_gpkernel, create_getCovFun_gpkernel_1){
     auto dcov = std::make_shared<DummyCovfun1>();
     kernel::GPKernel gpk(dcov);
 
     EXPECT_EQ(gpk.getCovarianceFunction(), dcov);
 }
 
-TEST(gpkernel, create_getCovFun_gpkernel_2){
+TEST(kernels_gpkernel, create_getCovFun_gpkernel_2){
     auto dcov = std::make_shared<DummyCovfun1>();
     double noise = 0.2;
     kernel::GPKernel gpk(dcov, noise);
@@ -121,7 +121,7 @@ TEST(gpkernel, create_getCovFun_gpkernel_2){
     EXPECT_EQ(gpk.getCovarianceFunction(), dcov);
 }
 
-TEST(gpkernel, create_getCovFun_gpkernel_3){
+TEST(kernels_gpkernel, create_getCovFun_gpkernel_3){
     auto dcov = std::make_shared<DummyCovfun1>();
     kernel::GPKernel gpk(dcov);
     auto gpdat = std::make_shared<GPData>(3, 5);
@@ -133,7 +133,7 @@ TEST(gpkernel, create_getCovFun_gpkernel_3){
     EXPECT_EQ(gpk.getData().get(), gpk2.getData().get());
 }
 
-TEST(gpkernel, copy_getCovFun){
+TEST(kernels_gpkernel, copy_getCovFun){
     auto dcov = std::make_shared<DummyCovfun1>();
     std::shared_ptr<kernel::GPKernel> gpk = make_shared<kernel::GPKernel>(dcov);
     auto gpdat = std::make_shared<GPData>(3, 5);
@@ -144,7 +144,7 @@ TEST(gpkernel, copy_getCovFun){
     EXPECT_EQ(gpk->getData().get(), gpk2->getData().get());
 }
 
-TEST(gpkernel, register_data_1){
+TEST(kernels_gpkernel, register_data_1){
     auto dcov = std::make_shared<DummyCovfun1>();
     auto gpdat = std::make_shared<GPData>(3, 5);
     kernel::GPKernel gpk(dcov);
@@ -153,7 +153,7 @@ TEST(gpkernel, register_data_1){
     EXPECT_EQ(gpk.getData().get(), gpdat.get());
 }
 
-TEST(gpkernel, register_data_getN_2){
+TEST(kernels_gpkernel, register_data_getN_2){
     // check if new data can be added later
 
     auto dcov = std::make_shared<DummyCovfun1>();
@@ -168,7 +168,7 @@ TEST(gpkernel, register_data_getN_2){
     EXPECT_EQ(gpk.getData()->getN(), 11);
 }
 
-TEST(gpkernel, n_parameters){
+TEST(kernels_gpkernel, n_parameters){
     // check if new data can be added later
 
     auto dcov = std::make_shared<DummyCovfun1>();
@@ -180,7 +180,7 @@ TEST(gpkernel, n_parameters){
     EXPECT_EQ(gpk.nParameters(), 5);
 }
 
-TEST(gpkernel, get_set_parameters1){
+TEST(kernels_gpkernel, get_set_parameters1){
     // check if new data can be added later
 
     auto dcov = std::make_shared<DummyCovfun1>();
@@ -204,7 +204,7 @@ TEST(gpkernel, get_set_parameters1){
     EXPECT_EQ(resparam(4), 5);
 }
 
-TEST(gpkernel, get_set_parameters2){
+TEST(kernels_gpkernel, get_set_parameters2){
     // check if new data can be added later
 
     auto dcov = std::make_shared<DummyCovfun1>();
@@ -227,7 +227,7 @@ TEST(gpkernel, get_set_parameters2){
     EXPECT_EQ(resparam(9), 7);
 }
 
-TEST(gpkernel, computeCov_1){
+TEST(kernels_gpkernel, computeCov_1){
     auto dcov = std::make_shared<DummyCovfun1>();
     kernel::GPKernel gpk(dcov);
 
@@ -238,7 +238,7 @@ TEST(gpkernel, computeCov_1){
     EXPECT_EQ(K, Kres);
 }
 
-TEST(gpkernel, computeCov_2){
+TEST(kernels_gpkernel, computeCov_2){
     auto dcov = std::make_shared<DummyCovfun2>();
     kernel::GPKernel gpk(dcov);
     auto gpdat = get_test_data();
@@ -262,7 +262,7 @@ TEST(gpkernel, computeCov_2){
     EXPECT_TRUE(Kdiag.isApprox(Kres.diagonal()));
 }
 
-TEST(gpkernel, computeCov_3){
+TEST(kernels_gpkernel, computeCov_3){
     auto dcov = std::make_shared<DummyCovfun2>();
     kernel::GPKernel gpk(dcov);
     auto gpdat = get_test_data();
@@ -288,7 +288,7 @@ TEST(gpkernel, computeCov_3){
     EXPECT_EQ(K, Kres + Eigen::MatrixXd::Identity(Kres.rows(), Kres.cols())*sigma);
 }
 
-TEST(gpkernel, computeInvCov){
+TEST(kernels_gpkernel, computeInvCov){
     auto dcov = std::make_shared<DummyCovfun2>();
     kernel::GPKernel gpk(dcov);
     auto gpdat = get_test_data_2();
@@ -316,7 +316,7 @@ TEST(gpkernel, computeInvCov){
 }
 
 
-TEST(gpkernel, computeLog){
+TEST(kernels_gpkernel, computeLog){
     auto dcov = std::make_shared<DummyCovfun2>();
     kernel::GPKernel gpk(dcov);
     auto gpdat = get_test_data_2();
@@ -332,7 +332,7 @@ TEST(gpkernel, computeLog){
     EXPECT_THAT(det, testing::DoubleEq(std::log(detRes)));
 }
 
-TEST(gpkernel, get_set_noise){
+TEST(kernels_gpkernel, get_set_noise){
     auto dcov = std::make_shared<DummyCovfun1>();
     kernel::GPKernel gpk(dcov);
     //auto gpdat = get_test_data_2();
