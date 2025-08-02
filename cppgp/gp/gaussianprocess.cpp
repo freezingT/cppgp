@@ -312,7 +312,8 @@ void GaussianProcess::posteriorMean(Eigen::MatrixXd& mu, const Eigen::MatrixXd& 
 
 
 double GaussianProcess::computeNegativeLogMarginalLikelihood() {
-    Eigen::MatrixXd obsYNormalized;
-    _gp_impl->obsData->getYNormalized(obsYNormalized);
-    return 0.0; //TODO _gp_impl->computeNegativeLogMarginalLikelihood(obsYNormalized);
+    if(this->getKernel() == nullptr){
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+    return -this->getKernel()->computeNoisedLogDetCov();
 }
