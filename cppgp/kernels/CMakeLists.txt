@@ -1,7 +1,7 @@
 
 set(COVARIANCE_FUNCTIONS
-    rbf_covfun.hpp
-    rbf_covfun.cpp
+    covfun_rbf.hpp
+    covfun_rbf.cpp
 )
 
 target_sources(libgp PRIVATE
@@ -9,8 +9,6 @@ target_sources(libgp PRIVATE
     covfun.cpp
     gpkernel.hpp
     gpkernel.cpp
-    #rbfkernel.hpp
-    #rbfkernel.cpp
     ${COVARIANCE_FUNCTIONS}
 )
 
