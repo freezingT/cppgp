@@ -61,7 +61,7 @@ public:
      *
      * @returns A pointer that contains a deep copy of the object.
      */
-    virtual std::shared_ptr<util::Prototype> copy() const override;
+    virtual std::shared_ptr<util::Prototype> copy() const override = 0;
 
     /**
      * Compute the covariance matrix (Gram matrix) for this covariance function

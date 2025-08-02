@@ -10,7 +10,7 @@ class DummyCovfun1 : public kernel::CovarianceFunction
 public:
     DummyCovfun1() {this->parameters = Eigen::VectorXd::Ones(4);}
     virtual ~DummyCovfun1(){}
-    virtual std::shared_ptr<CovarianceFunction> copy() const override {return std::make_shared<DummyCovfun1>(*this);}
+    virtual std::shared_ptr<util::Prototype> copy() const override {return std::make_shared<DummyCovfun1>(*this);}
 protected:
     virtual void covariancefunction(Eigen::MatrixXd& K, const Eigen::MatrixXd& X1, const Eigen::MatrixXd& X2) const
     {
@@ -32,7 +32,7 @@ class DummyCovfun2 : public kernel::CovarianceFunction
 {
 public:
     virtual ~DummyCovfun2(){}
-    virtual std::shared_ptr<CovarianceFunction> copy() const override {return std::make_shared<DummyCovfun2>(*this);}
+    virtual std::shared_ptr<util::Prototype> copy() const override {return std::make_shared<DummyCovfun2>(*this);}
 protected:
     virtual void covariancefunction(Eigen::MatrixXd& K, const Eigen::MatrixXd& X1, const Eigen::MatrixXd& X2) const
     {

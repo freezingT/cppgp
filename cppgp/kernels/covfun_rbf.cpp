@@ -49,7 +49,7 @@ gp::kernel::RBFCovFun::RBFCovFun(const Eigen::VectorXd &params)
 gp::kernel::RBFCovFun::~RBFCovFun()
 {}
 
-std::shared_ptr<gp::kernel::CovarianceFunction> gp::kernel::RBFCovFun::copy() const
+std::shared_ptr<util::Prototype> gp::kernel::RBFCovFun::copy() const
 {
     CovarianceFunction* cfun = new RBFCovFun(this->getParameters());
     return std::shared_ptr<CovarianceFunction>(cfun);
