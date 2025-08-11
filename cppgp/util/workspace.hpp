@@ -86,8 +86,6 @@ public:
     DFVariable operator[](const std::string& variableName) const;
     DFVariable operator[](const size_t id) const;
 
-    std::vector<DFVariable>::const_iterator begin() const;
-    std::vector<DFVariable>::const_iterator end() const;
 
     DFVariable pop(const std::string& variableName);
     DFVariable pop(const size_t id=0);

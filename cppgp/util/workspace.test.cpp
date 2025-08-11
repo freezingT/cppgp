@@ -1,13 +1,12 @@
 #include <cppgp/util/workspace.hpp>
-#include <cppgp/util/datafile_conv.h>
+#include <cppgp/util/datafile_conv.hpp>
 
-#include <iostream>
 #include <Eigen/Dense>
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
 
-TEST(util_datafile, variable)
+TEST(util_workspace, variable)
 {
     auto var1 = std::make_shared<double>(2.0);
     std::string t_var1 = "double";
@@ -22,7 +21,7 @@ TEST(util_datafile, variable)
     EXPECT_EQ(v1.rawDataPtr(), var1);
 }
 
-TEST(util_datafile, retrieve)
+TEST(util_workspace, retrieve)
 {
     auto var1 = std::make_shared<double>(2.0);
     std::string t_var1 = "double";
@@ -50,7 +49,7 @@ void createWorkspaceData(std::vector<std::string>& names, std::vector<util::data
     vars.push_back(util::data::DFVariable("string", std::make_shared<std::string>("variablecontent")));
 }
 
-TEST(util_datafile, workspace_create){
+TEST(util_workspace, workspace_create){
     std::vector<std::string> names;
     std::vector<util::data::DFVariable> vars;
     createWorkspaceData(names, vars);
@@ -62,7 +61,7 @@ TEST(util_datafile, workspace_create){
     }
 }
 
-TEST(util_datafile, workspace_length){
+TEST(util_workspace, workspace_length){
     std::vector<std::string> names;
     std::vector<util::data::DFVariable> vars;
     createWorkspaceData(names, vars);
@@ -72,7 +71,7 @@ TEST(util_datafile, workspace_length){
     EXPECT_EQ(ws.length(), 3);
 }
 
-TEST(util_datafile, workspace_add){
+TEST(util_workspace, workspace_add){
     std::vector<std::string> names;
     std::vector<util::data::DFVariable> vars;
     createWorkspaceData(names, vars);
@@ -88,7 +87,7 @@ TEST(util_datafile, workspace_add){
     EXPECT_EQ(resvnames[3], "newvar");
 }
 
-TEST(util_datafile, workspace_getVarnames){
+TEST(util_workspace, workspace_getVarnames){
     std::vector<std::string> names;
     std::vector<util::data::DFVariable> vars;
     createWorkspaceData(names, vars);
@@ -106,7 +105,7 @@ inline bool isEqualDFVar(const util::data::DFVariable& v1, const util::data::DFV
     return v1.isType(v2.typeIdentifier()) && v1.rawDataPtr() == v2.rawDataPtr();
 }
 
-TEST(util_datafile, workspace_access){
+TEST(util_workspace, workspace_access){
     std::vector<std::string> names;
     std::vector<util::data::DFVariable> vars;
     createWorkspaceData(names, vars);
@@ -130,20 +129,7 @@ TEST(util_datafile, workspace_access){
     EXPECT_THROW(ws["fantasy"], std::out_of_range);
 }
 
-
-TEST(util_datafile, workspace_iterator){
-    std::vector<std::string> names;
-    std::vector<util::data::DFVariable> vars;
-    createWorkspaceData(names, vars);
-    util::data::Workspace ws(names, vars);
-
-    int i = 0;
-    for(auto it = ws.begin(); it != ws.end(); ++it){
-        EXPECT_TRUE(isEqualDFVar(*it, vars[i++]));
-    }
-}
-
-TEST(util_datafile, workspace_popName){
+TEST(util_workspace, workspace_popName){
     std::vector<std::string> names;
     std::vector<util::data::DFVariable> vars;
     createWorkspaceData(names, vars);
@@ -164,7 +150,7 @@ TEST(util_datafile, workspace_popName){
     EXPECT_TRUE(isEqualDFVar(ws[0], vars[1]));
 }
 
-TEST(util_datafile, workspace_popID){
+TEST(util_workspace, workspace_popID){
     std::vector<std::string> names;
     std::vector<util::data::DFVariable> vars;
     createWorkspaceData(names, vars);
@@ -185,7 +171,7 @@ TEST(util_datafile, workspace_popID){
     EXPECT_TRUE(isEqualDFVar(ws[0], vars[1]));
 }
 
-TEST(util_datafile, workspace_empty){
+TEST(util_workspace, workspace_empty){
     std::vector<std::string> names;
     std::vector<util::data::DFVariable> vars;
     createWorkspaceData(names, vars);
@@ -200,7 +186,6 @@ TEST(util_datafile, workspace_empty){
     ws.pop();
     EXPECT_EQ(ws.length(), 0);
     EXPECT_EQ(ws.getVariableNames(), std::vector<std::string>(0));
-    EXPECT_EQ(ws.begin(), ws.end());
     EXPECT_THROW(ws[0], std::out_of_range);
 }
 

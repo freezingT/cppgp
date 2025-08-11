@@ -23,10 +23,9 @@
 */
 
 
-
-
 #include <cppgp/util/workspace.hpp>
 
+#include <map>
 
 util::data::DFVariable::DFVariable(const std::string &type, const std::shared_ptr<void> &data)
     : m_data(data)
@@ -53,55 +52,69 @@ class util::data::Workspace::WS_Impl
 public:
     WS_Impl(const std::vector<std::string>& varnames,
             const std::vector<DFVariable>& variables)
-        : m_varnames(varnames), m_vars(variables)
     {
-        if(m_varnames.size() != m_vars.size()){
+        if(varnames.size() != variables.size()){
             throw std::runtime_error("The number of variables and names given must be the same.");
+        }
+        for(size_t i = 0; i < varnames.size(); ++i){
+            auto res = m_varmap.insert(std::pair(varnames[i], variables[i]));
+            if(std::get<1>(res)){
+                m_varnames.push_back(varnames[i]);
+            }
         }
     }
 
     bool addEntry(const std::string& varname, const util::data::DFVariable& variable){
-        if(std::find(m_varnames.begin(), m_varnames.end(), varname) != m_varnames.end()){
-            return false;
+        auto ret = m_varmap.insert(std::pair(varname, variable));
+        bool succ = std::get<1>(ret);
+        if(succ){
+            m_varnames.push_back(varname);
         }
-        m_varnames.push_back(varname);
-        m_vars.push_back(variable);
-        return true;
-    }
-
-    auto begin() const {
-        return m_vars.begin();
-    }
-    auto end() const {
-        return m_vars.end();
+        return succ;
     }
 
     size_t length() const {
-        return m_vars.size();
+        return m_varmap.size();
     }
 
     const std::vector<std::string>& varnames() const{
+
         return m_varnames;
     }
 
-    inline size_t varname2id(const std::string& varname){
-        return std::find(m_varnames.begin(), m_varnames.end(), varname) - m_varnames.begin();
+
+    DFVariable get(const std::string& varname){
+        return m_varmap.at(varname);
     }
 
-    DFVariable get(const size_t id){
-        return m_vars.at(id);
+    DFVariable get(const int id){
+        return m_varmap.at(id2varname(id));
     }
 
-    DFVariable pop(const size_t id){
-        DFVariable result(m_vars.at(id));
-        m_vars.erase(m_vars.begin()+id);
-        m_varnames.erase(m_varnames.begin()+id);
+    DFVariable pop(const std::string varname){
+        DFVariable result(m_varmap.at(varname));
+        eraseName(varname);
+        m_varmap.erase(varname);
         return result;
     }
 
+    DFVariable pop(const size_t id){
+        return pop(id2varname(id));
+    }
+
 private:
+    std::map<std::string, util::data::DFVariable> m_varmap;
     std::vector<std::string> m_varnames; // alternative: use a map std::string -> id
-    std::vector<util::data::DFVariable> m_vars;
+    //std::vector<util::data::DFVariable> m_vars;
+
+    inline std::string id2varname(const int id){
+        return m_varnames.at(id);
+    }
+
+    inline void eraseName(const std::string& name){
+        auto it = std::find(m_varnames.begin(), m_varnames.end(), name);
+        m_varnames.erase(it);
+    }
 };
 
 
@@ -116,26 +129,16 @@ bool util::data::Workspace::addEntry(const std::string& varname, const util::dat
 }
 
 util::data::DFVariable util::data::Workspace::operator[](const std::string& variableName) const {
-    return m_wsImpl->get(m_wsImpl->varname2id(variableName));
+    return m_wsImpl->get(variableName);
 }
 
 util::data::DFVariable util::data::Workspace::operator[](const size_t id) const {
     return m_wsImpl->get(id);
 }
 
-std::vector<util::data::DFVariable>::const_iterator util::data::Workspace::begin() const
-{
-    return m_wsImpl->begin();
-}
-
-std::vector<util::data::DFVariable>::const_iterator util::data::Workspace::end() const
-{
-    return m_wsImpl->end();
-}
-
 util::data::DFVariable util::data::Workspace::pop(const std::string &variableName)
 {
-    return m_wsImpl->pop(m_wsImpl->varname2id(variableName));
+    return m_wsImpl->pop(variableName);
 }
 
 util::data::DFVariable util::data::Workspace::pop(const size_t id)
